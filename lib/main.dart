@@ -32,7 +32,6 @@ class MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
-    print("open:$_cityID");
     return MaterialApp(
       title: 'Cool Weather',
       theme: ThemeData(

@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import 'counties_page.dart';
+import 'package:dio/dio.dart';
 import 'package:cool_weather/bean/city.dart';
-import 'dart:convert';
-import 'dart:io';
+import 'package:cool_weather/view/counties_page.dart';
 
 class CityPageWidget extends StatefulWidget {
   CityPageWidget({Key key, this.cityID}) : super(key: key);
@@ -16,38 +15,11 @@ class CityPageWidget extends StatefulWidget {
 class CityPageWidgetState extends State<CityPageWidget> {
   int _cityID;
   CityList _cityList = CityList();
-  List<City> _cities;
-
-  getHttp() async {
-    try {
-      HttpClient httpClient = new HttpClient();
-      var uri = new Uri.http(
-        'guolin.tech',
-        '/api/china/$_cityID',
-      );
-      var request = await httpClient.getUrl(uri);
-      var response = await request.close();
-      var responseBody = await response.transform(Utf8Decoder()).join();
-      final jsonResponse = json.decode(responseBody.toString());
-      CityList cityList = CityList.fromJson(jsonResponse);
-      return cityList;
-    } catch (e) {
-      print(e);
-    }
-  }
 
   @override
   void initState() {
     _cityID = widget.cityID;
-    getCity();
     super.initState();
-  }
-
-  void getCity() async {
-    _cityList = await getHttp();
-    setState(() {
-      _cities = _cityList.cities;
-    });
   }
 
   @override
@@ -59,27 +31,42 @@ class CityPageWidgetState extends State<CityPageWidget> {
           style: TextStyle(fontSize: 25.0),
         ),
       ),
-      body: _cities == null
-          ? new Text("正在请求")
-          : new ListView.builder(
-              itemCount: _cities.length,
+      body: FutureBuilder(
+        future: Dio().get("http://guolin.tech/api/china/$_cityID"),
+        builder: (BuildContext context, AsyncSnapshot snapshot) {
+          if (snapshot.connectionState == ConnectionState.done) {
+            Response response = snapshot.data;
+            //发生错误
+            if (snapshot.hasError) {
+              return Text(snapshot.error.toString());
+            }
+
+            _cityList = CityList.fromJson(response.data);
+            //请求成功，通过项目信息构建用于显示项目名称的ListView
+            return ListView.builder(
+              itemCount: _cityList.cities.length,
               itemBuilder: (context, index) {
                 return GestureDetector(
                   child: ListTile(
-                    title: Text("${_cities[index].name}"),
+                    title: Text("${_cityList.cities[index].name}"),
                   ),
                   onTap: () {
                     Navigator.push(context,
                         MaterialPageRoute(builder: (context) {
                       return CountiesPageWidget(
                         cityID: _cityID,
-                        countyID: _cities[index].id,
+                        countyID: _cityList.cities[index].id,
                       );
                     }));
                   },
                 );
               },
-            ),
+            );
+          }
+          // 请求未完成时弹出loading
+          return CircularProgressIndicator();
+        },
+      ),
     );
   }
 }

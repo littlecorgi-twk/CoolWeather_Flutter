@@ -4,7 +4,7 @@
 一个Flutter练手的天气预报Demo。
 
 ## 使用的东西
-主要使用了一些基本的Flutter Widget，并使用了路由管理、包管理、HttpClient、Dio、Json转Dart实体类、SharedPreferences。
+主要使用了一些基本的Flutter Widget，并使用了路由管理、包管理、HttpClient、Dio、Json转Dart实体类、SharedPreferences、异步。
 - 基础组件
     - Text
     - Image
@@ -23,6 +23,8 @@
     - SingleChildScrollView
     - ListView
     - GridView
+- 功能性组件
+    - FutureBuilder
 - 包
     - material.dart
     - dart:convert

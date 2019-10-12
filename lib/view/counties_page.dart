@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:dio/dio.dart';
 import 'main_page.dart';
 import 'package:cool_weather/bean/county.dart';
 import 'dart:convert';
@@ -18,39 +19,13 @@ class CountiesPageWidget extends StatefulWidget {
 class CountiesPageWidgetState extends State<CountiesPageWidget> {
   int _cityID;
   int _countyID;
-  List<County> _countiesList;
   List<County> _county;
-
-  getHttp() async {
-    try {
-      HttpClient httpClient = new HttpClient();
-      var uri = new Uri.http(
-        'guolin.tech',
-        '/api/china/$_cityID/$_countyID',
-      );
-      var request = await httpClient.getUrl(uri);
-      var response = await request.close();
-      var responseBody = await response.transform(Utf8Decoder()).join();
-      final jsonResponse = json.decode(responseBody.toString());
-      _countiesList = getCountyList(jsonResponse);
-    } catch (e) {
-      print(e);
-    }
-  }
 
   @override
   void initState() {
     _cityID = widget.cityID;
     _countyID = widget.countyID;
-    getCity();
     super.initState();
-  }
-
-  void getCity() async {
-    await getHttp();
-    setState(() {
-      _county = _countiesList;
-    });
   }
 
   void _saveCityID(String cityID) async {
@@ -67,9 +42,19 @@ class CountiesPageWidgetState extends State<CountiesPageWidget> {
           style: TextStyle(fontSize: 25.0),
         ),
       ),
-      body: _county == null
-          ? new Text("正在请求")
-          : new ListView.builder(
+      body: FutureBuilder(
+        future: Dio().get("http://guolin.tech/api/china/$_cityID/$_countyID"),
+        builder: (BuildContext context, AsyncSnapshot snapshot) {
+          if (snapshot.connectionState == ConnectionState.done) {
+            Response response = snapshot.data;
+            //发生错误
+            if (snapshot.hasError) {
+              return Text(snapshot.error.toString());
+            }
+
+            _county = getCountyList(response.data);
+            //请求成功，通过项目信息构建用于显示项目名称的ListView
+            return ListView.builder(
               itemCount: _county.length,
               itemBuilder: (context, index) {
                 return GestureDetector(
@@ -87,7 +72,12 @@ class CountiesPageWidgetState extends State<CountiesPageWidget> {
                   },
                 );
               },
-            ),
+            );
+          }
+          // 请求未完成时弹出loading
+          return CircularProgressIndicator();
+        },
+      ),
     );
   }
 }
