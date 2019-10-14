@@ -1,24 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
 import 'package:cool_weather/bean/city.dart';
-import 'package:cool_weather/view/counties_page.dart';
+import 'package:cool_weather/view/county_page.dart';
 
 class CityPageWidget extends StatefulWidget {
-  CityPageWidget({Key key, this.cityID}) : super(key: key);
+  CityPageWidget({Key key, this.provinceID}) : super(key: key);
 
-  final int cityID;
+  final int provinceID;
 
   @override
   CityPageWidgetState createState() => CityPageWidgetState();
 }
 
 class CityPageWidgetState extends State<CityPageWidget> {
-  int _cityID;
-  CityList _cityList = CityList();
+  int _provinceID;
+  List<City> _cityList;
 
   @override
   void initState() {
-    _cityID = widget.cityID;
+    _provinceID = widget.provinceID;
     super.initState();
   }
 
@@ -32,7 +32,7 @@ class CityPageWidgetState extends State<CityPageWidget> {
         ),
       ),
       body: FutureBuilder(
-        future: Dio().get("http://guolin.tech/api/china/$_cityID"),
+        future: Dio().get("http://guolin.tech/api/china/$_provinceID"),
         builder: (BuildContext context, AsyncSnapshot snapshot) {
           if (snapshot.connectionState == ConnectionState.done) {
             Response response = snapshot.data;
@@ -41,21 +41,21 @@ class CityPageWidgetState extends State<CityPageWidget> {
               return Text(snapshot.error.toString());
             }
 
-            _cityList = CityList.fromJson(response.data);
+            _cityList = getCityList(response.data);
             //请求成功，通过项目信息构建用于显示项目名称的ListView
             return ListView.builder(
-              itemCount: _cityList.cities.length,
+              itemCount: _cityList.length,
               itemBuilder: (context, index) {
                 return GestureDetector(
                   child: ListTile(
-                    title: Text("${_cityList.cities[index].name}"),
+                    title: Text("${_cityList[index].name}"),
                   ),
                   onTap: () {
                     Navigator.push(context,
                         MaterialPageRoute(builder: (context) {
-                      return CountiesPageWidget(
-                        cityID: _cityID,
-                        countyID: _cityList.cities[index].id,
+                      return CountyPageWidget(
+                        provinceID: _provinceID,
+                        cityID: _cityList[index].id,
                       );
                     }));
                   },

@@ -2,16 +2,12 @@ import 'package:json_annotation/json_annotation.dart';
 
 part 'city.g.dart';
 
-class CityList {
-  final List<City> cities;
-
-  CityList({this.cities});
-
-  factory CityList.fromJson(List<dynamic> parsedJson) {
-    List<City> cities = new List<City>();
-    cities = parsedJson.map((i) => City.fromJson(i)).toList();
-    return new CityList(cities: cities);
-  }
+List<City> getCityList(List<dynamic> list) {
+  List<City> result = [];
+  list.forEach((item) {
+    result.add(City.fromJson(item));
+  });
+  return result;
 }
 
 @JsonSerializable()

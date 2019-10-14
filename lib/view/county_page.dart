@@ -2,29 +2,27 @@ import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
 import 'main_page.dart';
 import 'package:cool_weather/bean/county.dart';
-import 'dart:convert';
-import 'dart:io';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class CountiesPageWidget extends StatefulWidget {
+class CountyPageWidget extends StatefulWidget {
+  final int provinceID;
   final int cityID;
-  final int countyID;
 
-  CountiesPageWidget({Key key, this.cityID, this.countyID}) : super(key: key);
+  CountyPageWidget({Key key, this.provinceID, this.cityID}) : super(key: key);
 
   @override
-  CountiesPageWidgetState createState() => CountiesPageWidgetState();
+  CountyPageWidgetState createState() => CountyPageWidgetState();
 }
 
-class CountiesPageWidgetState extends State<CountiesPageWidget> {
+class CountyPageWidgetState extends State<CountyPageWidget> {
+  int _provinceID;
   int _cityID;
-  int _countyID;
   List<County> _county;
 
   @override
   void initState() {
+    _provinceID = widget.provinceID;
     _cityID = widget.cityID;
-    _countyID = widget.countyID;
     super.initState();
   }
 
@@ -43,7 +41,7 @@ class CountiesPageWidgetState extends State<CountiesPageWidget> {
         ),
       ),
       body: FutureBuilder(
-        future: Dio().get("http://guolin.tech/api/china/$_cityID/$_countyID"),
+        future: Dio().get("http://guolin.tech/api/china/$_provinceID/$_cityID"),
         builder: (BuildContext context, AsyncSnapshot snapshot) {
           if (snapshot.connectionState == ConnectionState.done) {
             Response response = snapshot.data;

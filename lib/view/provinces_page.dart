@@ -11,7 +11,7 @@ class ProvincesPageWidget extends StatefulWidget {
 }
 
 class ProvincesPageStateWidget extends State<ProvincesPageWidget> {
-  ProvinceList provinceList = ProvinceList();
+  List<Province> provinceList;
 
   @override
   Widget build(BuildContext context) {
@@ -32,20 +32,21 @@ class ProvincesPageStateWidget extends State<ProvincesPageWidget> {
                 return Text(snapshot.error.toString());
               }
 
-              provinceList = ProvinceList.fromJson(response.data);
+              provinceList = getProvinceList(response.data);
               //请求成功，通过项目信息构建用于显示项目名称的ListView
               return ListView.builder(
-                itemCount: provinceList.provinces.length,
+                itemCount: provinceList.length,
                 itemBuilder: (context, index) {
                   return GestureDetector(
                     child: ListTile(
-                      title: Text("${provinceList.provinces[index].name}"),
+                      title: Text("${provinceList[index].name}"),
                     ),
                     onTap: () {
                       Navigator.push(context,
                           MaterialPageRoute(builder: (context) {
                         return CityPageWidget(
-                            cityID: provinceList.provinces[index].id);
+                          provinceID: provinceList[index].id,
+                        );
                       }));
                     },
                   );

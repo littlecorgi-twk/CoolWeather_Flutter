@@ -2,16 +2,12 @@ import 'package:json_annotation/json_annotation.dart';
 
 part 'province.g.dart';
 
-class ProvinceList {
-  final List<Province> provinces;
-
-  ProvinceList({this.provinces});
-
-  factory ProvinceList.fromJson(List<dynamic> parsedJson) {
-    List<Province> provinces = new List<Province>();
-    provinces = parsedJson.map((i) => Province.fromJson(i)).toList();
-    return new ProvinceList(provinces: provinces);
-  }
+List<Province> getProvinceList(List<dynamic> list) {
+  List<Province> result = [];
+  list.forEach((item) {
+    result.add(Province.fromJson(item));
+  });
+  return result;
 }
 
 @JsonSerializable()
